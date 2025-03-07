@@ -1,8 +1,6 @@
 <?php
 
-use App\Http\Controllers\CompetitionController;
-use App\Http\Controllers\CrosswordController;
-use App\Models\Crossword;
+
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -10,34 +8,57 @@ use Illuminate\Support\Facades\Route;
 //     return $request->user();
 // })->middleware('auth:sanctum');
 
-Route::get('/', function () {
-    $latestCrosswords = Crossword::where('published', true)
-        ->with('creator:id,name')
-        ->latest()
-        ->take(10)
-        ->get();
 
-    return view('home', compact('latestCrosswords'));
-})->name('home');
+<?php
+// routes/api.php
 
-Route::middleware(['auth'])->group(function () {
+use App\Http\Controllers\CrosswordController;
+use App\Http\Controllers\CompetitionController;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
+use App\Services\CrosswordGenerator;
+
+/*
+|--------------------------------------------------------------------------
+| API Routes
+|--------------------------------------------------------------------------
+*/
+
+Route::middleware('auth:sanctum')->group(function () {
     // Crossword routes
-    Route::get('/crosswords', [CrosswordController::class, 'index'])->name('crosswords.index');
-    Route::get('/crosswords/create', [CrosswordController::class, 'create'])->name('crosswords.create');
-    Route::get('/crosswords/{crossword}', [CrosswordController::class, 'show'])->name('crosswords.show');
-    Route::get('/crosswords/{crossword}/play', [CrosswordController::class, 'play'])->name('crosswords.play');
-    Route::get('/leaderboard', [CrosswordController::class, 'leaderboard'])->name('crosswords.leaderboard');
+    Route::post('/crosswords/generate-preview', function (Request $request) {
+        $request->validate([
+            'words' => 'required|array|min:3',
+            'words.*.word' => 'required|string|min:2',
+            'words.*.clue' => 'required|string|min:2',
+        ]);
+
+        $generator = new CrosswordGenerator();
+
+        foreach ($request->words as $wordData) {
+            $generator->addWord($wordData['word'], $wordData['clue']);
+        }
+
+        $generator->optimizeGrid();
+
+        return response()->json([
+            'grid' => $generator->getGrid(),
+            'words' => $generator->getWords(),
+            'gridSize' => $generator->getGridSize()
+        ]);
+    });
+
+    Route::post('/crosswords', [CrosswordController::class, 'store']);
+    Route::get('/crosswords/{crossword}', [CrosswordController::class, 'show']);
+    Route::post('/crosswords/{crossword}/save-solution', [CrosswordController::class, 'saveSolution']);
 
     // Competition routes
-    Route::get('/competitions', [CompetitionController::class, 'index'])->name('competitions.index');
-    Route::get('/competitions/create', [CompetitionController::class, 'create'])->name('competitions.create');
-    Route::post('/competitions', [CompetitionController::class, 'store'])->name('competitions.store');
-    Route::get('/competitions/{competition}', [CompetitionController::class, 'show'])->name('competitions.show');
-    Route::get('/competitions/{competition}/play', [CompetitionController::class, 'play'])->name('competitions.play');
-    Route::post('/competitions/{competition}/terminate', [CompetitionController::class, 'terminate'])
-        ->name('competitions.terminate')
-        ->middleware('can:update,competition');
-});
+    Route::get('/competitions/{competition}/crossword', function (App\Models\Competition $competition) {
+        return response()->json([
+            'crossword' => $competition->crossword,
+            'competition' => $competition
+        ]);
+    });
 
-// Auth routes (Laravel creates these by default)
-require __DIR__.'/auth.php';
+    Route::post('/competitions/{competition}/save-solution', [CompetitionController::class, 'saveSolution']);
+});
