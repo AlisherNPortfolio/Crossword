@@ -33,6 +33,3 @@ Route::middleware(['auth'])->group(function () {
         ->name('competitions.terminate')
         ->middleware('can:update,competition');
 });
-
-// Auth routes (Laravel creates these by default)
-//require __DIR__.'/auth.php';
