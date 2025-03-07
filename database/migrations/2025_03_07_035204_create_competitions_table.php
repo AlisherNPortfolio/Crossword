@@ -13,6 +13,12 @@ return new class extends Migration
     {
         Schema::create('competitions', function (Blueprint $table) {
             $table->id();
+            $table->string('title');
+            $table->text('description')->nullable();
+            $table->foreignId('crossword_id')->constrained();
+            $table->timestamp('start_time');
+            $table->timestamp('end_time');
+            $table->boolean('is_active')->default(false);
             $table->timestamps();
         });
     }
@@ -22,6 +28,10 @@ return new class extends Migration
      */
     public function down(): void
     {
+        Schema::table('competitions', function (Blueprint $table) {
+            $table->dropForeign(['crossword_id']);
+        });
+
         Schema::dropIfExists('competitions');
     }
 };
