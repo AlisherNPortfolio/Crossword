@@ -101,7 +101,7 @@ class CrosswordController extends Controller
                 'solution_data' => $request->input('solution_data'),
                 'completed' => $request->input('completed'),
                 'time_taken' => $request->input('time_taken'),
-                'score' => $request->input('score')
+                'score' => $this->calculateScore($request->input('solution_data'), $crossword, $request->input('time_taken'))
             ]);
 
             // TODO: create universal response mechanizm later
