@@ -94,7 +94,7 @@ class CrosswordGenerator
             }
 
             $this->grid[$centerRow][$centerCol]['isHorizontalStart'] = true;
-            $this->words[$centerRow][$centerCol]['wordIndex'] = $wordData['index'];
+            $this->grid[$centerRow][$centerCol]['wordIndex'] = $wordData['index'];
 
             $this->words[0]['placed'] = true;
             $this->words[0]['orientation'] = 'horizontal';
