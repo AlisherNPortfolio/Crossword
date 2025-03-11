@@ -5,25 +5,17 @@
     <div class="row justify-content-center">
         <div class="col-md-6">
             <div class="card">
-                <div class="card-header">{{ __('Register') }}</div>
+                <div class="card-header">{{ __('Reset Password') }}</div>
 
                 <div class="card-body">
-                    <form method="POST" action="{{ route('register') }}">
+                    <form method="POST" action="{{ route('password.update') }}">
                         @csrf
 
-                        <div class="mb-3">
-                            <label for="name" class="form-label">{{ __('Name') }}</label>
-                            <input id="name" type="text" class="form-control @error('name') is-invalid @enderror" name="name" value="{{ old('name') }}" required autocomplete="name" autofocus>
-                            @error('name')
-                                <div class="invalid-feedback">
-                                    {{ $message }}
-                                </div>
-                            @enderror
-                        </div>
+                        <input type="hidden" name="token" value="{{ $request->route('token') }}">
 
                         <div class="mb-3">
                             <label for="email" class="form-label">{{ __('Email Address') }}</label>
-                            <input id="email" type="email" class="form-control @error('email') is-invalid @enderror" name="email" value="{{ old('email') }}" required autocomplete="email">
+                            <input id="email" type="email" class="form-control @error('email') is-invalid @enderror" name="email" value="{{ $email ?? old('email') }}" required autocomplete="email" autofocus>
                             @error('email')
                                 <div class="invalid-feedback">
                                     {{ $message }}
@@ -48,14 +40,8 @@
 
                         <div class="mb-3">
                             <button type="submit" class="btn btn-primary w-100">
-                                {{ __('Register') }}
+                                {{ __('Reset Password') }}
                             </button>
-                        </div>
-
-                        <div class="text-center">
-                            <a href="{{ route('login') }}">
-                                {{ __('Already have an account? Login') }}
-                            </a>
                         </div>
                     </form>
                 </div>

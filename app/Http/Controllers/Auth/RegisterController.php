@@ -7,8 +7,6 @@ use App\Http\Requests\RegisterRequest;
 use App\Models\Role;
 use App\Models\User;
 use App\Models\UserProfile;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 
 class RegisterController extends Controller
@@ -38,7 +36,7 @@ class RegisterController extends Controller
             'user_id' => $user->id
         ]);
 
-        return redirect()->intended('home');
+        return redirect()->route('home');
 
         // if (Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
         //     $request->session()->regenerate();

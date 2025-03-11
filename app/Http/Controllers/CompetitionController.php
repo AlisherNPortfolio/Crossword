@@ -8,16 +8,19 @@ use App\Models\Competition;
 use App\Models\CompetitionResult;
 use App\Models\Crossword;
 use Carbon\Carbon;
+use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use PDOException;
 
 // TODO: use repository-service pattern for all controllers
-class CompetitionController extends Controller
+class CompetitionController extends Controller implements HasMiddleware
 {
-    public function __construct()
+    public static function middleware(): array
     {
-        $this->middleware('auth');
+        return [
+            'auth'
+        ];
     }
 
     public function index()

@@ -7,14 +7,17 @@ use App\Models\Competition;
 use App\Models\Crossword;
 use App\Models\User;
 use App\Models\UserSolution;
+use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Support\Facades\Auth;
 
-class DashboardController extends Controller
+class DashboardController extends Controller implements HasMiddleware
 {
-    public function __construct()
+    public static function middleware(): array
     {
-        $this->middleware('checkRole:administrator,creator');
-        $this->middleware('checkPermission:dashboard.access');
+        return [
+            'checkRole:administrator,creator',
+            'checkPermission:dashboard.access'
+        ];
     }
 
     public function index()

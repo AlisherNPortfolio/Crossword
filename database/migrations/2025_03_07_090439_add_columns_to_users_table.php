@@ -12,7 +12,6 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->string('name');
             $table->string('profile_photo')->nullable();
             $table->boolean('active')->default(true);
             $table->timestamp('last_login_at')->nullable();
@@ -25,7 +24,6 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn('name');
             $table->dropColumn('profile_photo');
             $table->dropColumn('active');
             $table->dropColumn('last_login_at');

@@ -22,7 +22,9 @@ Route::get('/', function () {
         ->take(10)
         ->get();
 
-    return view('home', compact('latestCrosswords'));
+    return view('home', [
+        'latestCrosswords' => $latestCrosswords
+    ]);
 })->name('home');
 
 Route::middleware('guest')->group(function () {

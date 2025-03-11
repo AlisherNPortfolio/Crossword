@@ -7,16 +7,18 @@ use App\Http\Requests\Dashboard\DashboardCrosswordCreateRequest;
 use App\Http\Requests\Dashboard\DashboardCrosswordUpdateRequest;
 use App\Models\Crossword;
 use App\Services\CrosswordGenerator;
-use Illuminate\Http\Request;
+use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 
-class CrosswordController extends Controller
+class CrosswordController extends Controller implements HasMiddleware
 {
-    public function __construct()
+    public static function middleware(): array
     {
-        $this->middleware('checkRole:administrator,creator');
-        $this->middleware('checkPermission:dashboard.access');
+        return [
+            'checkRole:administrator,creator',
+            'checkPermission:dashboard.access'
+        ];
     }
 
     public function index()

@@ -8,17 +8,19 @@ use App\Http\Requests\Dashboard\DashboardCompetitionUpdateRequest;
 use App\Models\Competition;
 use App\Models\CompetitionResult;
 use App\Models\Crossword;
-use Illuminate\Http\Request;
+use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 
-class CompetitionController extends Controller
+class CompetitionController extends Controller implements HasMiddleware
 {
-    public function __construct()
+    public static function middleware(): array
     {
-        $this->middleware('checkRole:administrator,creator');
-        $this->middleware('checkPermission:dashboard.access');
+        return [
+            'checkRole:administrator,creator',
+            'checkPermission:dashboard.access'
+        ];
     }
 
     public function index()

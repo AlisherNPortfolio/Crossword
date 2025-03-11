@@ -8,16 +8,20 @@ use App\Http\Requests\SolutionCreateRequest;
 use App\Models\Crossword;
 use App\Models\UserSolution;
 use App\Services\CrosswordGenerator;
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use InvalidArgumentException;
 use PDOException;
 
-class CrosswordController extends Controller
+class CrosswordController extends Controller implements HasMiddleware
 {
-    public function __construct()
+    public static function middleware(): array
     {
-        $this->middleware('auth')->except(['index']);
+        return [
+            new Middleware('auth', except: ['index'])
+        ];
     }
 
     public function index()

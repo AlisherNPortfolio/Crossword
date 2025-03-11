@@ -7,15 +7,18 @@ use App\Http\Requests\Dashboard\DashboardRoleCreateRequest;
 use App\Models\Permission;
 use App\Models\Role;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 
-class RoleController extends Controller
+class RoleController extends Controller implements HasMiddleware
 {
-    public function __construct()
+    public static function middleware(): array
     {
-        $this->middleware('checkRole:administrator');
-        $this->middleware('checkPermission:roles.manage');
+        return [
+            'checkRole:administrator',
+            'checkPermission:roles.manage'
+        ];
     }
 
     public function index()

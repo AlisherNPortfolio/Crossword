@@ -8,19 +8,23 @@ use App\Models\Role;
 use App\Models\User;
 use App\Models\UserProfile;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
 
-class UserController extends Controller
+class UserController extends Controller implements HasMiddleware
 {
-    public function __construct()
+    public static function middleware(): array
     {
-        $this->middleware('checkRole:administrator');
-        $this->middleware('checkPermission:users.view')->only(['index', 'show']);
-        $this->middleware('checkPermission:users.create')->only(['create', 'store']);
-        $this->middleware('checkPermission:users.edit')->only(['edit', 'update']);
-        $this->middleware('checkPermission:users.delete')->only('destroy');
+        return [
+            'checkRole:administrator',
+            new Middleware('checkPermission:users.view', only: ['index', 'show']),
+            new Middleware('checkPermission:users.create', only: ['create', 'store']),
+            new Middleware('checkPermission:users.edit', only: ['edit', 'update']),
+            new Middleware('checkPermission:users.delete', only: ['destroy'])
+        ];
     }
 
     public function index()
