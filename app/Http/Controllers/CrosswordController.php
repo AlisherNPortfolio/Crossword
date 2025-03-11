@@ -7,13 +7,18 @@ use App\Http\Requests\SolutionCreateRequest;
 use App\Models\Crossword;
 use App\Models\UserSolution;
 use App\Services\CrosswordGenerator;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 use InvalidArgumentException;
 use PDOException;
 
 class CrosswordController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('auth')->except(['index']);
+    }
+
     public function index()
     {
         $crosswords = Crossword::query()->where('published', true)
@@ -28,11 +33,21 @@ class CrosswordController extends Controller
 
     public function create()
     {
+        if (Gate::denies('create', Crossword::class)) {
+            return redirect()->route('crosswords.index')
+                ->with('error', 'Sizda krosvord yaratishga ruxsat yo\'q!');
+        }
+
         return view('crosswords.create');
     }
 
     public function store(CrosswordCreateRequest $request)
     {
+        if (Gate::denies('create', Crossword::class)) {
+            return redirect()->route('crosswords.index')
+                ->with('error', 'Sizda krosvord yaratishga ruxsat yo\'q!');
+        }
+
         $request->validated();
 
         $generator = new CrosswordGenerator();
@@ -68,6 +83,11 @@ class CrosswordController extends Controller
 
     public function show(Crossword $crossword)
     {
+        if (!$crossword->published && Gate::denies('view', $crossword)) {
+            return redirect()->route('crosswords.index')
+                ->with('error', 'Sizda bu krosvordni ko\'rishga ruxsat yo\'q!');
+        }
+
         $userSolution = null;
 
         if (Auth::check()) {
@@ -84,13 +104,30 @@ class CrosswordController extends Controller
 
     public function play(Crossword $crossword)
     {
+        if (!$crossword->published && Gate::denies('view', $crossword)) {
+            return redirect()->route('crosswords.index')
+                ->with('error', 'Bu krosvordni o\'ynashga ruxsat yo\'q!');
+        }
+
+        $userSolution = UserSolution::where('user_id', Auth::id())
+            ->where('crossword_id', $crossword->id)
+            ->first();
+
         return view('crosswords.play', [
-            'crossword' => $crossword
+            'crossword' => $crossword,
+            'userSolution' => $userSolution
         ]);
     }
 
     public function saveSolution(SolutionCreateRequest $request, Crossword $crossword)
     {
+        if (!$crossword->published && Gate::denies('view', $crossword)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Ushbu krosvord yechimini saqlashga ruxsat yo\'q!'
+            ], 403);
+        }
+
         $request->validated();
 
         try {
