@@ -15,11 +15,11 @@
     <!-- Styles -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
-    <link href="{{ asset('assets/css/app.css') }}" rel="stylesheet">
-    <link href="{{ asset('assets/css/dashboard.css') }}" rel="stylesheet">
+    {{-- <link href="{{ asset('assets/css/app.css', true) }}" rel="stylesheet"> --}}
+    {{-- <link href="/assets/css/dashboard.css" rel="stylesheet"> --}}
 
     <!-- Scripts -->
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @vite(['resources/css/app.css', 'resources/css/dashboard.css', 'resources/js/app.js'])
 </head>
 <body>
     <div class="dashboard-container">
@@ -124,7 +124,7 @@
                         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                     </div>
                 @endif
-
+<test-component></test-component>
                 @yield('content')
             </main>
         </div>
