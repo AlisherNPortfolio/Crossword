@@ -252,4 +252,38 @@ class CompetitionController extends Controller
 
         return redirect()->route('competition.index')->with('success', 'Musobaqa to\'xtatildi!');
     }
+
+    public function getCrossword(Competition $competition)
+    {
+        if (Gate::denies('view', $competition)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Sizda bu musobaqani ko\'rishga ruxsat yo\'q!'
+            ], 403);
+        }
+
+        $now = Carbon::now();
+
+        if ($now < $competition->start_time || $now > $competition->end_time || !$competition->is_active) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Bu musobaqa hozirda faol emas.'
+            ], 403);
+        }
+
+        $competition->load('crossword');
+
+        return response()->json([
+            'success' => true,
+            'competition' => [
+                'id' => $competition->id,
+                'title' => $competition->title,
+                'description' => $competition->description,
+                'start_time' => $competition->start_time,
+                'end_time' => $competition->end_time,
+                'is_active' => $competition->is_active
+            ],
+            'crossword' => $competition->crossword
+        ]);
+    }
 }
