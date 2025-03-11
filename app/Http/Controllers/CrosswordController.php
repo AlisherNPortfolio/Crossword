@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\CrosswordCreateRequest;
+use App\Http\Requests\CrosswordGeneratePreviewRequest;
 use App\Http\Requests\SolutionCreateRequest;
 use App\Models\Crossword;
 use App\Models\UserSolution;
@@ -195,4 +196,31 @@ class CrosswordController extends Controller
             'topUsers' => $userSolutions
         ]);
     }
+
+    public function generatePreview(CrosswordGeneratePreviewRequest $request)
+{
+    if (Gate::denies('create', Crossword::class)) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Sizda krosvord generatsiya qilishga ruxsat yo\'q!'
+        ], 403);
+    }
+
+    $request->validated();
+
+    $generator = new CrosswordGenerator();
+
+    foreach ($request->words as $wordData) {
+        $generator->addWord($wordData['word'], $wordData['clue']);
+    }
+
+    $generator->optimizeGrid();
+
+    return response()->json([
+        'success' => true,
+        'grid' => $generator->getGrid(),
+        'words' => $generator->getWords(),
+        'gridSize' => $generator->getGridSize()
+    ]);
+}
 }
