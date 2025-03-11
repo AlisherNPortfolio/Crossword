@@ -148,7 +148,7 @@
 
   <script setup>
   import { ref, computed, onMounted } from 'vue';
-  import { useCrosswordCreatorStore } from '../stores/crosswordStore';
+  import { useCrosswordCreatorStore } from '../store/crosswordStore';
   import { storeToRefs } from 'pinia';
 
   const store = useCrosswordCreatorStore();

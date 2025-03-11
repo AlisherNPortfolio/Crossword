@@ -143,7 +143,7 @@
 
   <script setup>
   import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
-  import { useCrosswordStore } from '../stores/crosswordStore';
+  import { useCrosswordStore } from '../store/crosswordStore';
   import { storeToRefs } from 'pinia';
 
   const props = defineProps({
