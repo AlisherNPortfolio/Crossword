@@ -9,11 +9,17 @@ use App\Models\CompetitionResult;
 use App\Models\Crossword;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 use PDOException;
 
 // TODO: use repository-service pattern for all controllers
 class CompetitionController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('auth');
+    }
+
     public function index()
     {
         $now = Carbon::now();
@@ -45,6 +51,11 @@ class CompetitionController extends Controller
 
     public function create()
     {
+        if (Gate::denies('create', Competition::class)) {
+            return redirect()->route('competitions.index')
+                ->with('error', 'Sizda musobaqa yaratishga ruxsat yo\'q!');
+        }
+
         $crosswords = Crossword::query()
         ->where('published', true)
         ->orderBy('title')
@@ -57,6 +68,11 @@ class CompetitionController extends Controller
 
     public function store(CompetitionCreateRequest $request)
     {
+        if (Gate::denies('create', Competition::class)) {
+            return redirect()->route('competitions.index')
+                ->with('error', 'Sizda musobaqa yaratishga ruxsat yo\'q!');
+        }
+
         $request->validated();
 
         try {
@@ -79,6 +95,11 @@ class CompetitionController extends Controller
 
     public function show(Competition $competition)
     {
+        if (Gate::denies('view', $competition)) {
+            return redirect()->route('competitions.index')
+                ->with('error', 'Sizda bu musobaqani ko\'rishga ruxsat yo\'q!');
+        }
+
         $now = Carbon::now();
         $competition->load('crossword');
 
@@ -122,7 +143,13 @@ class CompetitionController extends Controller
         ]);
     }
 
-    public function play(Competition $competition) {
+    public function play(Competition $competition)
+    {
+        if (Gate::denies('view', $competition)) {
+            return redirect()->route('competitions.index')
+                ->with('error', 'Sizda bu musobaqada ishtirok etishga ruxsat yo\'q!');
+        }
+
         $now = Carbon::now();
 
         if ($now < $competition->start_time || $now > $competition->end_time || !$competition->is_active) {
@@ -138,6 +165,13 @@ class CompetitionController extends Controller
 
     public function saveSolution(CrosswordSolutionCreateRequest $request, Competition $competition)
     {
+        if (Gate::denies('view', $competition)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Sizda bu musobaqada ishtirok etishga ruxsat yo\'q!'
+            ], 403);
+        }
+
         $now = Carbon::now();
 
         if ($now > $competition->end_time || !$competition->is_active) {
@@ -169,7 +203,8 @@ class CompetitionController extends Controller
         ]);
     }
 
-    public function calculateScore($solutionData, Crossword $crossword, $timeTaken) {
+    public function calculateScore($solutionData, Crossword $crossword, $timeTaken)
+    {
         $words = collect($crossword->words);
         $correctWords = 0;
         $totalLetters = 0;
@@ -205,10 +240,16 @@ class CompetitionController extends Controller
         return $score;
     }
 
-    public function terminate(Competition $competition) {
+    public function terminate(Competition $competition)
+    {
+        if (Gate::denies('terminate', $competition)) {
+            return redirect()->route('competitions.index')
+                ->with('error', 'Sizda musobaqani to\'xtatishga ruxsat yo\'q!');
+        }
+
         $this->authorize('update', $competition);
         $competition->update(['is_active' => false]);
 
-        return redirect()->route('competition.index')->with('success', 'Musobaqa tugatildi');
+        return redirect()->route('competition.index')->with('success', 'Musobaqa to\'xtatildi!');
     }
 }
