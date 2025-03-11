@@ -42,7 +42,7 @@ class LoginController extends Controller
         ]);
 
         if ($user->isAdmin() || $user->isCreator()) {
-            return redirect()->intended(route('dashboard'));
+            return redirect()->intended(route('dashboard.index'));
         }
 
         return redirect()->intended(route('home'));

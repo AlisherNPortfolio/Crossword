@@ -72,10 +72,10 @@ class User extends Authenticatable
         return $this->hasMany(UserSolution::class);
     }
 
-    // public function competitionResults()
-    // {
-    //     return $this->hasMany(CompititionResult::class);
-    // }
+    public function competitionResults()
+    {
+        return $this->hasMany(CompetitionResult::class);
+    }
 
     public function hasRole(string $roleSlug)
     {
