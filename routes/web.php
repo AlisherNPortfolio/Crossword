@@ -111,3 +111,15 @@ Route::middleware(['auth', 'checkRole:administrator,creator', 'checkPermission:d
             ->name('competitions.terminate');
     });
 
+Route::middleware(['auth'])->prefix('api')->group(function () {
+    // Crossword API routes
+    Route::post('/crosswords/generate-preview', [CrosswordController::class, 'generatePreview'])
+        ->middleware('checkPermission:crosswords.create');
+
+    Route::post('/crosswords/{crossword}/save-solution', [CrosswordController::class, 'saveSolution']);
+
+    // Competition API routes
+    Route::get('/competitions/{competition}/crossword', [CompetitionController::class, 'getCrossword']);
+    Route::post('/competitions/{competition}/save-solution', [CompetitionController::class, 'saveSolution']);
+});
+
