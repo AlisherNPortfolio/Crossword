@@ -81,9 +81,16 @@ class CrosswordController extends Controller implements HasMiddleware
             return redirect()->back()->with('error', $e->getMessage());
         }
 
-        return redirect()
-            ->route('crosswords.show', ['crossword' => $crossword])
-            ->with('success', 'Krosvord yaratildi!');
+        // return redirect()
+        //     ->route('crosswords.show', ['crossword' => $crossword])
+        //     ->with('success', 'Krosvord yaratildi!');
+        return response()->json([
+            'success' => true,
+            'message' => 'Krosvord yaratildi!',
+            'data' => [
+                'id' => $crossword->id
+            ]
+        ]);
     }
 
     public function show(Crossword $crossword)
@@ -202,29 +209,29 @@ class CrosswordController extends Controller implements HasMiddleware
     }
 
     public function generatePreview(CrosswordGeneratePreviewRequest $request)
-{
-    if (Gate::denies('create', Crossword::class)) {
+    {
+        if (Gate::denies('create', Crossword::class)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Sizda krosvord generatsiya qilishga ruxsat yo\'q!'
+            ], 403);
+        }
+
+        $request->validated();
+
+        $generator = new CrosswordGenerator();
+
+        foreach ($request->words as $wordData) {
+            $generator->addWord($wordData['word'], $wordData['clue']);
+        }
+
+        $generator->optimizeGrid();
+
         return response()->json([
-            'success' => false,
-            'message' => 'Sizda krosvord generatsiya qilishga ruxsat yo\'q!'
-        ], 403);
+            'success' => true,
+            'grid' => $generator->getGrid(),
+            'words' => $generator->getWords(),
+            'gridSize' => $generator->getGridSize()
+        ]);
     }
-
-    $request->validated();
-
-    $generator = new CrosswordGenerator();
-
-    foreach ($request->words as $wordData) {
-        $generator->addWord($wordData['word'], $wordData['clue']);
-    }
-
-    $generator->optimizeGrid();
-
-    return response()->json([
-        'success' => true,
-        'grid' => $generator->getGrid(),
-        'words' => $generator->getWords(),
-        'gridSize' => $generator->getGridSize()
-    ]);
-}
 }

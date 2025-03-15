@@ -116,6 +116,8 @@ Route::middleware(['auth'])->prefix('api')->group(function () {
     Route::post('/crosswords/generate-preview', [CrosswordController::class, 'generatePreview'])
         ->middleware('checkPermission:crosswords.create');
 
+    Route::post('/crosswords', [CrosswordController::class, 'store']);
+    Route::get('/crosswords/{crossword}', [CrosswordController::class, 'show']);
     Route::post('/crosswords/{crossword}/save-solution', [CrosswordController::class, 'saveSolution']);
 
     // Competition API routes

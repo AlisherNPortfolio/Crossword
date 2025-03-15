@@ -184,8 +184,9 @@
   const saveCrossword = async (shouldPublish) => {
     const result = await store.saveCrossword(shouldPublish);
 
-    if (result) {
-      window.location.href = `/crosswords/${result.id}`;
+    const id = result?.data?.id;
+    if (result && result.success && id) {
+      window.location.href = `/crosswords/${id}`;
     }
   };
 
