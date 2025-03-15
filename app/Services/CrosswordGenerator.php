@@ -56,6 +56,11 @@ class CrosswordGenerator
             $result = $this->placeAllWords();
         }
 
+        if ($result) {
+            $this->wordIndex++;
+            return true;
+        }
+
         array_pop($this->words);
         $this->resetPlacement();
         $this->placeAllWords();
@@ -107,7 +112,7 @@ class CrosswordGenerator
         $allPlaced = true;
 
         foreach ($this->words as $index => $wordData) {
-            if (!$wordData['placed']) {
+            if ($wordData['placed']) {
                 continue;
             }
 
@@ -265,7 +270,7 @@ class CrosswordGenerator
         }
 
         $this->grid[$row][$col]['word_index'] = true;
-        $this->words[$row][$col]['wordIndex'] = $wordIndex;
+        $this->grid[$row][$col]['wordIndex'] = $wordIndex;
     }
 
     private function placeWordVertically($word, $row, $col, $wordIndex)
@@ -277,7 +282,7 @@ class CrosswordGenerator
         }
 
         $this->grid[$row][$col]['isVerticalStart'] = true;
-        $this->words[$row][$col]['wordIndex'] = $wordIndex;
+        $this->grid[$row][$col]['wordIndex'] = $wordIndex;
     }
 
     private function expandGrid() {
